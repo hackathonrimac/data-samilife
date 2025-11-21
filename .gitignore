@@ -1,0 +1,66 @@
+# ==========================
+# SISTEMA OPERATIVO (OS)
+# ==========================
+# --- macOS ---
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# --- Windows ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ==========================
+# PYTHON & ENTORNO
+# ==========================
+__pycache__/
+*.py[cod]
+
+# Entornos virtuales (Nombres comunes)
+venv/
+env/
+.venv/
+
+# ==========================
+# SEGURIDAD
+# ==========================
+.env
+
+# ==========================
+# DATOS (DATA SCIENCE)
+# ==========================
+# Ignora carpetas de descarga y salida
+data/
+downloads/
+output/
+
+# Ignora archivos de datos específicos (Excel de salud, etc.)
+*.csv
+*.xlsx
+*.xls
+*.json
+*.xml
+
+# ==========================
+# WEB SCRAPING & DRIVERS
+# ==========================
+*.log
+
+# Drivers de Selenium (Mac/Linux no usan extensión, Windows usa .exe)
+chromedriver
+geckodriver
+msedgedriver
+# Específico Windows
+*.exe
+chromedriver.exe
+geckodriver.exe
+msedgedriver.exe
+
+# ==========================
+# IDEs (Editores)
+# ==========================
+.vscode/
+.idea/
