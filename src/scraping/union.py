@@ -43,7 +43,7 @@ def unir_csvs():
 
 
     # 6. Guardar el Archivo Maestro
-    nombre_final = "SUSALUD_MASTER_DATA_LIMA.csv"
+    nombre_final = "SUSALUD_DATA_LIMA.csv"
     
     # Guardamos sin index y forzando utf-8 con BOM (sig) para que Excel abra bien las tildes
     df_maestro.to_csv(nombre_final, index=False, encoding='utf-8-sig')
