@@ -12,6 +12,11 @@ from app.schemas.responses import AppointmentSlot
 router = APIRouter(prefix="", tags=["appointments"])
 
 
+@router.get("/health", response_model=dict)
+async def health_check():
+    """Health check endpoint."""
+    return {"status": "ok"}
+
 @router.get("/get/{cod_unico}/citas", response_model=List[AppointmentSlot])
 async def get_appointments_endpoint(
     cod_unico: str,
