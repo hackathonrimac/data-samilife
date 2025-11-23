@@ -35,7 +35,7 @@ RUN apt-get update && \
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copiar el código de la aplicación
-COPY --chown=appuser:appuser app/ ./app/
+COPY --chown=appuser:appuser src/backend/ .
 
 # Crear directorio para logs
 RUN mkdir -p logs && chown -R appuser:appuser logs
