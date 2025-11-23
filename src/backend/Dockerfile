@@ -15,14 +15,14 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 # 1. Copiamos requirements desde su ubicación REAL (src/backend/requirements.txt)
-COPY src/backend/requirements.txt .
+COPY /requirements.txt .
 
 # Instalamos dependencias
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 2. Copiamos la carpeta 'app' completa
 # Esto creará la estructura /app/app/main.py dentro del contenedor
-COPY src/backend/app ./app
+COPY /app ./app
 
 # Creamos usuario no-root por seguridad
 RUN useradd -m -u 1000 appuser && \

@@ -6,13 +6,14 @@ FROM node:20-alpine as build
 WORKDIR /app
 
 # 1. Copiamos package.json desde src/frontend/
-COPY src/frontend/package*.json ./
+COPY package*.json ./
 
+# variables de entorno
 # Instalamos dependencias
 RUN npm install
 
 # 2. Copiamos todo el código fuente del frontend
-COPY src/frontend/ .
+COPY . .
 
 # Construimos la app (Al ser Vite, crea la carpeta 'dist')
 RUN npm run build
