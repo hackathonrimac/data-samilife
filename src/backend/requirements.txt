@@ -1,0 +1,20 @@
+# Framework Web y Servidor
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+
+# Base de Datos (ORM)
+sqlalchemy>=2.0.0
+
+# Validación de Datos
+pydantic>=2.5.0
+
+# Gestión de Variables de Entorno (.env)
+python-dotenv>=1.0.0
+
+# Drivers de Base de Datos (Elige uno y descomenta)
+# psycopg2-binary    # Recomendado si usas PostgreSQL
+# pymysql            # Recomendado si usas MySQL
+# (SQLite ya viene incluido en Python, no requiere driver extra)
+
+# Opcional: Si necesitas manejar subida de archivos (forms) en el futuro
+# python-multipart
