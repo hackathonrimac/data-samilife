@@ -1,6 +1,7 @@
 """SQLAlchemy ORM models for healthcare database."""
 
 from sqlalchemy import Column, String, Float, Integer, Date, ForeignKey, ForeignKeyConstraint
+from geoalchemy2 import Geography
 from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
@@ -21,6 +22,9 @@ class Institucion(Base):
     longitud = Column(String)  # DB stores text; keep as string to avoid type mismatch
     latitud = Column(String)   # DB stores text; keep as string to avoid type mismatch
     pagina = Column(String)
+    f_longitud = Column(Float)  # Converted float value
+    f_latitud = Column(Float)   # Converted float value
+    location = Column(Geography(geometry_type='POINT', srid=4326))  # PostGIS point
     
     # Relationships
     servicios = relationship("Servicio", back_populates="institucion_rel")

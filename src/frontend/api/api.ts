@@ -21,6 +21,7 @@ export interface EstablishmentSummary {
   cod_unico?: string | null;
   latitud?: number | null;
   longitud?: number | null;
+  distance?: number | null;
 }
 
 export interface ServiceInfo {
@@ -90,6 +91,22 @@ export interface MedicationInfo {
   disponible: string;
 }
 
+export interface MedicineSearchResult {
+  codigo_med: string;
+  nombre: string;
+  forma_farmaceutica: string;
+  tipo: string;
+  establecimientos: Array<{
+    cod_unico: string;
+    nombre: string;
+    direccion: string;
+    stock: number;
+    precio: number;
+    fecha_vencimiento: string | null;
+    disponible: string;
+  }>;
+}
+
 export interface SearchEstablishmentsParams {
   lugar?: string;
   fecha?: string;
@@ -141,6 +158,8 @@ export const api = {
       lugar: params.lugar,
       fecha: params.fecha,
       tipo: params.tipo,
+      latitud: params.latitud !== undefined ? String(params.latitud) : undefined,
+      longitud: params.longitud !== undefined ? String(params.longitud) : undefined,
       page: params.page?.toString(),
     };
 
@@ -169,6 +188,11 @@ export const api = {
     }
     return fetchJson<MedicationInfo[]>(buildUrl(`get/${codUnico}/farmacos`, query));
   },
+
+  searchMedicines: (nombre: string) =>
+    fetchJson<MedicineSearchResult[]>(
+      buildUrl('get/medicina', { nombre })
+    ),
 
   getPricing: (codigo: string, servicio: { servicio: string; cmp?: string; profesion?: string }) => {
     const query: Record<string, string | undefined> = {

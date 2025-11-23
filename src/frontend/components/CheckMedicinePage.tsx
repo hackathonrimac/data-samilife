@@ -4,24 +4,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
-
-interface Establishment {
-  cod_unico: string;
-  nombre: string;
-  direccion: string;
-  stock: number;
-  precio: number;
-  fecha_vencimiento: string | null;
-  disponible: string;
-}
-
-interface Medicine {
-  codigo_med: string;
-  nombre: string;
-  forma_farmaceutica: string;
-  tipo: string;
-  establecimientos: Establishment[];
-}
+import { api, MedicineSearchResult } from '../api/api';
 
 interface CheckMedicinePageProps {
   onBack: () => void;
@@ -29,7 +12,7 @@ interface CheckMedicinePageProps {
 
 export function CheckMedicinePage({ onBack }: CheckMedicinePageProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [medicines, setMedicines] = useState<Medicine[]>([]);
+  const [medicines, setMedicines] = useState<MedicineSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
@@ -45,15 +28,7 @@ export function CheckMedicinePage({ onBack }: CheckMedicinePageProps) {
     setHasSearched(true);
 
     try {
-      const response = await fetch(
-        `http://localhost:8000/get/medicina?nombre=${encodeURIComponent(searchQuery)}`
-      );
-
-      if (!response.ok) {
-        throw new Error('Error al buscar medicamentos');
-      }
-
-      const data = await response.json();
+      const data = await api.searchMedicines(searchQuery);
       setMedicines(data);
     } catch (err) {
       setError('Error al buscar medicamentos. Por favor intenta de nuevo.');
@@ -70,7 +45,7 @@ export function CheckMedicinePage({ onBack }: CheckMedicinePageProps) {
   };
 
   return (
-    <div className="min-h-screen px-4 py-8">
+    <div className="min-h-screen px-4 pt-24 pb-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">

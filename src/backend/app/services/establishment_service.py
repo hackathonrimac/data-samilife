@@ -2,7 +2,7 @@
 
 from typing import List, Optional, Dict, Any
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.orm import selectinload
 from fastapi import HTTPException
 
@@ -26,7 +26,9 @@ async def search_establishments(
     tipo: Optional[str] = None,
     filtros: Optional[Dict[str, Any]] = None,
     page: int = 1,
-    per_page: int = 10
+    per_page: int = 10,
+    latitud: Optional[float] = None,
+    longitud: Optional[float] = None
 ) -> List[EstablishmentSummary]:
     """
     Search for healthcare establishments with multiple filter criteria.
@@ -47,7 +49,64 @@ async def search_establishments(
         
     Requirements: 1.1, 1.2, 1.3, 1.4, 1.5
     """
-    # Start with base query
+    # If coordinates provided, prioritize nearest search using PostGIS index on location
+    if latitud is not None and longitud is not None:
+        filters_sql = []
+        params: Dict[str, Any] = {
+            "lat": latitud,
+            "lon": longitud,
+            "limit": per_page,
+            "offset": (page - 1) * per_page,
+        }
+
+        if lugar:
+            filters_sql.append("direccion ILIKE :lugar")
+            params["lugar"] = f"%{lugar}%"
+        if tipo:
+            filters_sql.append("institucion = :tipo")
+            params["tipo"] = tipo
+
+        where_clause = " AND ".join(filters_sql)
+        if where_clause:
+            where_clause = "AND " + where_clause
+
+        # Assumes a geography/geometry column named 'location' with SRID 4326 and a GiST index
+        sql = text(f"""
+            SELECT cod_unico, direccion, institucion, establecimiento, clasificacion, correo, longitud, latitud, pagina,
+                   ST_Distance(location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography) AS distance_m
+            FROM institucion
+            WHERE location IS NOT NULL
+            {where_clause}
+            ORDER BY location <-> ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography
+            LIMIT :limit OFFSET :offset
+        """)
+
+        rows = (await db.execute(sql, params)).mappings().all()
+
+        establishments = []
+        for row in rows:
+            try:
+                lat_val = float(row.get("latitud")) if row.get("latitud") is not None else None
+                lon_val = float(row.get("longitud")) if row.get("longitud") is not None else None
+            except (TypeError, ValueError):
+                lat_val = None
+                lon_val = None
+
+            establishments.append(
+                EstablishmentSummary(
+                    nombre=row.get("establecimiento") or "",
+                    direccion=row.get("direccion") or "",
+                    calificacion=row.get("clasificacion"),
+                    cod_unico=row.get("cod_unico"),
+                    latitud=lat_val,
+                    longitud=lon_val,
+                    distance=row.get("distance_m"),
+                )
+            )
+
+        return establishments
+
+    # Start with base query (fallback without coordinates)
     query = select(Institucion)
     
     # Apply location filter (case-insensitive partial match)

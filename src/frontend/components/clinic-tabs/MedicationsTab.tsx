@@ -1,5 +1,5 @@
 import { Pill, CheckCircle, XCircle, DollarSign, Search } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MedicationInfo } from '../../api/api';
 
 interface MedicationsTabProps {
@@ -10,6 +10,8 @@ interface MedicationsTabProps {
 export function MedicationsTab({ clinicName, medications }: MedicationsTabProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [page, setPage] = useState(1);
+  const perPage = 10;
 
   const categories = useMemo(() => ['All', ...new Set(medications.map((med) => med.tipo))], [medications]);
 
@@ -18,6 +20,19 @@ export function MedicationsTab({ clinicName, medications }: MedicationsTabProps)
     const matchesCategory = selectedCategory === 'All' || med.tipo === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filteredMedications.length / perPage));
+  const paginated = filteredMedications.slice((page - 1) * perPage, page * perPage);
+
+  const handlePageChange = (nextPage: number) => {
+    if (nextPage < 1 || nextPage > totalPages) return;
+    setPage(nextPage);
+  };
+
+  // Reset page when filters/search change
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery, selectedCategory, medications]);
 
   return (
     <div className="space-y-6">
@@ -61,7 +76,7 @@ export function MedicationsTab({ clinicName, medications }: MedicationsTabProps)
 
         {/* Medications Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {filteredMedications.map((medication) => {
+          {paginated.map((medication) => {
             const inStock = medication.stock > 0 || (medication.disponible || '').toLowerCase() === 'si';
             return (
             <div
@@ -122,6 +137,29 @@ export function MedicationsTab({ clinicName, medications }: MedicationsTabProps)
           <div className="text-center py-12">
             <Pill className="w-12 h-12 text-green-700 mx-auto mb-4" />
             <p className="text-green-300">No medications found matching your search.</p>
+          </div>
+        )}
+
+        {/* Pagination */}
+        {filteredMedications.length > 0 && (
+          <div className="mt-6 flex items-center justify-center gap-3 text-green-200">
+            <button
+              onClick={() => handlePageChange(page - 1)}
+              disabled={page === 1}
+              className="px-3 py-1 rounded-lg border border-green-700/40 bg-black/30 hover:border-green-500/60 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Anterior
+            </button>
+            <span className="text-sm">
+              Página {page} de {totalPages}
+            </span>
+            <button
+              onClick={() => handlePageChange(page + 1)}
+              disabled={page === totalPages}
+              className="px-3 py-1 rounded-lg border border-green-700/40 bg-black/30 hover:border-green-500/60 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Siguiente
+            </button>
           </div>
         )}
       </div>

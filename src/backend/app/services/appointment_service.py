@@ -81,8 +81,9 @@ async def get_available_appointments(
         # Parse schedule from detalle field
         if not service.detalle:
             continue
-        
+        print( f"Parsing schedule for service {service.servicio} with detalle: {service.detalle}" )
         schedule_entries = parse_schedule_safe(service.detalle)
+        print(f"Service: {service.servicio}, Schedule Entries: {schedule_entries}")
         if not schedule_entries:
             # Skip services with malformed schedules
             continue

@@ -1,5 +1,5 @@
 import { ArrowLeft, MapPin, Info, Calendar, Pill, Loader2, AlertTriangle, Globe } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { InformationTab } from './clinic-tabs/InformationTab';
 import { BookAppointmentTab } from './clinic-tabs/BookAppointmentTab';
 import { MedicationsTab } from './clinic-tabs/MedicationsTab';
@@ -12,6 +12,13 @@ interface ClinicDetailPageProps {
 
 type TabType = 'information' | 'appointment' | 'medications';
 
+declare global {
+  interface Window {
+    google: any;
+    initClinicMapPromise?: Promise<void>;
+  }
+}
+
 export function ClinicDetailPage({ clinicId, onBack }: ClinicDetailPageProps) {
   const [activeTab, setActiveTab] = useState<TabType>('information');
   const [clinic, setClinic] = useState<EstablishmentInfo | null>(null);
@@ -19,6 +26,9 @@ export function ClinicDetailPage({ clinicId, onBack }: ClinicDetailPageProps) {
   const [medications, setMedications] = useState<MedicationInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [mapError, setMapError] = useState<string | null>(null);
+  const mapRef = useRef<HTMLDivElement | null>(null);
+  const mapInstanceRef = useRef<any>(null);
 
   useEffect(() => {
     const loadClinicData = async () => {
@@ -43,6 +53,57 @@ export function ClinicDetailPage({ clinicId, onBack }: ClinicDetailPageProps) {
 
     loadClinicData();
   }, [clinicId]);
+
+  useEffect(() => {
+    const loadGoogleMaps = async () => {
+      if (window.google?.maps) return;
+      if (!import.meta.env.VITE_GOOGLE_MAPS_API_KEY) {
+        setMapError('Falta definir VITE_GOOGLE_MAPS_API_KEY para mostrar el mapa');
+        return;
+      }
+      if (!window.initClinicMapPromise) {
+        window.initClinicMapPromise = new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`;
+          script.async = true;
+          script.onload = () => resolve();
+          script.onerror = () => reject(new Error('No se pudo cargar Google Maps'));
+          document.head.appendChild(script);
+        });
+      }
+      await window.initClinicMapPromise;
+    };
+
+    const renderMap = async () => {
+      if (!clinic) return;
+      const lat = typeof clinic.latitud === 'number' ? clinic.latitud : Number(clinic.latitud);
+      const lng = typeof clinic.longitud === 'number' ? clinic.longitud : Number(clinic.longitud);
+      if (!lat || !lng) return;
+
+      try {
+        await loadGoogleMaps();
+        if (!mapRef.current || !window.google?.maps) return;
+
+        mapInstanceRef.current = new window.google.maps.Map(mapRef.current, {
+          center: { lat, lng },
+          zoom: 15,
+          mapTypeControl: false,
+          streetViewControl: false,
+        });
+
+        new window.google.maps.Marker({
+          position: { lat, lng },
+          map: mapInstanceRef.current,
+          title: clinic.nombre,
+          animation: window.google.maps.Animation.DROP,
+        });
+      } catch (err) {
+        setMapError(err instanceof Error ? err.message : 'No se pudo mostrar el mapa');
+      }
+    };
+
+    renderMap();
+  }, [clinic]);
 
   const tabs = [
     { id: 'information' as TabType, label: 'Information', icon: Info },
@@ -147,6 +208,22 @@ export function ClinicDetailPage({ clinicId, onBack }: ClinicDetailPageProps) {
                     medications={medications}
                   />
                 )}
+              </div>
+            </div>
+
+            {/* Map Section at bottom */}
+            <div className="bg-gradient-to-br from-green-900/40 to-green-950/40 backdrop-blur-sm rounded-2xl p-4 border border-green-700/30 mt-6">
+              <h3 className="text-lg text-white mb-3 flex items-center gap-2">
+                <MapPin className="w-5 h-5" />
+                Ubicación
+              </h3>
+              <div className="relative w-full h-72 rounded-xl overflow-hidden border border-green-700/30 bg-black/40">
+                {mapError && (
+                  <div className="absolute inset-0 flex items-center justify-center text-red-200 bg-black/60 text-sm px-4 text-center">
+                    {mapError}
+                  </div>
+                )}
+                <div ref={mapRef} className="w-full h-full" />
               </div>
             </div>
           </>

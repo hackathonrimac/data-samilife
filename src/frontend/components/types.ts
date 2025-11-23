@@ -6,6 +6,7 @@ export interface Clinic {
   institution?: string | null;
   longitude?: number | null;
   latitude?: number | null;
+  distanceKm?: number | null;
 }
 
 export interface SearchFilters {
@@ -14,4 +15,6 @@ export interface SearchFilters {
   date?: string;
   type?: string;
   insurance?: string;
+  latitude?: number;
+  longitude?: number;
 }

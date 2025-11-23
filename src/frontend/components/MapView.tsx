@@ -50,7 +50,12 @@ export function MapView({ clinics, selectedClinic, onSelectClinic, isLoading = f
       try {
         await loadGoogleMaps();
         if (!mapRef.current || !window.google?.maps) return;
-        mapInstanceRef.current = new window.google.maps.Map(mapRef.current, {
+
+        const [{ Map }] = await Promise.all([
+          window.google.maps.importLibrary('maps'),
+        ]);
+
+        mapInstanceRef.current = new Map(mapRef.current, {
           center: LIMA_CENTER,
           zoom: 12,
           mapTypeControl: false,

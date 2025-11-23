@@ -76,6 +76,7 @@ def parse_schedule_json(schedule_json: str) -> List[ScheduleEntry]:
     
     schedule_entries = []
     for entry in schedule_data:
+        print(f"Processing schedule entry: {entry}")
         if not isinstance(entry, dict):
             raise ValueError("Each schedule entry must be a JSON object")
         
