@@ -2,80 +2,60 @@ import { SearchBar } from './SearchBar';
 import { ClinicList } from './ClinicList';
 import { MapView } from './MapView';
 import { ArrowLeft } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { api, EstablishmentSummary } from '../api/api';
+import { Clinic, SearchFilters } from './types';
 
 interface SearchServicePageProps {
   onBack: () => void;
   onSelectClinic: (clinicId: string) => void;
 }
 
-export interface Clinic {
-  id: string;
-  name: string;
-  type: string;
-  address: string;
-  insurance: string[];
-  rating: number;
-  coordinates: { lat: number; lng: number };
-  image: string;
-}
-
-const mockClinics: Clinic[] = [
-  {
-    id: '1',
-    name: 'Green Valley Medical Center',
-    type: 'Hospital',
-    address: '123 Health St, Medical District',
-    insurance: ['Medicare', 'Blue Cross', 'Aetna'],
-    rating: 4.8,
-    coordinates: { lat: 40.7580, lng: -73.9855 },
-    image: 'hospital'
-  },
-  {
-    id: '2',
-    name: 'City Care Clinic',
-    type: 'Clinic',
-    address: '456 Wellness Ave, Downtown',
-    insurance: ['Medicare', 'United Health', 'Cigna'],
-    rating: 4.5,
-    coordinates: { lat: 40.7614, lng: -73.9776 },
-    image: 'clinic'
-  },
-  {
-    id: '3',
-    name: 'Sunrise Family Health',
-    type: 'Family Practice',
-    address: '789 Care Blvd, Northside',
-    insurance: ['Blue Cross', 'Aetna', 'Humana'],
-    rating: 4.7,
-    coordinates: { lat: 40.7489, lng: -73.9680 },
-    image: 'medical building'
-  },
-  {
-    id: '4',
-    name: 'Advanced Specialty Hospital',
-    type: 'Specialty Hospital',
-    address: '321 Expert Way, Medical Park',
-    insurance: ['Medicare', 'Medicaid', 'United Health'],
-    rating: 4.9,
-    coordinates: { lat: 40.7549, lng: -73.9840 },
-    image: 'modern hospital'
-  },
-  {
-    id: '5',
-    name: 'Community Health Center',
-    type: 'Community Clinic',
-    address: '654 Public Health Rd, Eastside',
-    insurance: ['Medicaid', 'Blue Cross', 'Cigna'],
-    rating: 4.3,
-    coordinates: { lat: 40.7505, lng: -73.9934 },
-    image: 'health center'
-  }
-];
+const mapEstablishmentToClinic = (establishment: EstablishmentSummary, index: number): Clinic => ({
+  id: establishment.cod_unico ?? `clinic-${index}`,
+  name: establishment.nombre,
+  address: establishment.direccion,
+  classification: establishment.calificacion,
+});
 
 export function SearchServicePage({ onBack, onSelectClinic }: SearchServicePageProps) {
-  const [filteredClinics, setFilteredClinics] = useState<Clinic[]>(mockClinics);
+  const [filteredClinics, setFilteredClinics] = useState<Clinic[]>([]);
   const [selectedClinic, setSelectedClinic] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchClinics = async (filters?: SearchFilters) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const dynamicFilters: Record<string, unknown> = {};
+
+      if (filters?.query) {
+        dynamicFilters.establecimiento = { operator: 'contains', value: filters.query };
+      }
+
+      const results = await api.searchEstablishments({
+        lugar: filters?.location || undefined,
+        fecha: filters?.date || undefined,
+        tipo: filters?.type || undefined,
+        filtros: Object.keys(dynamicFilters).length ? dynamicFilters : undefined,
+      });
+
+      const mapped = results.map(mapEstablishmentToClinic);
+      setFilteredClinics(mapped);
+      setSelectedClinic(mapped[0]?.id ?? null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No pudimos obtener los establecimientos');
+      setFilteredClinics([]);
+      setSelectedClinic(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchClinics();
+  }, []);
 
   const handleClinicClick = (clinicId: string) => {
     setSelectedClinic(clinicId);
@@ -83,6 +63,10 @@ export function SearchServicePage({ onBack, onSelectClinic }: SearchServicePageP
 
   const handleViewDetails = (clinicId: string) => {
     onSelectClinic(clinicId);
+  };
+
+  const handleSearch = (filters: SearchFilters) => {
+    fetchClinics(filters);
   };
 
   return (
@@ -101,7 +85,13 @@ export function SearchServicePage({ onBack, onSelectClinic }: SearchServicePageP
         <h1 className="text-4xl text-white mb-8">Search Healthcare Services</h1>
 
         {/* Search Bar */}
-        <SearchBar onSearch={setFilteredClinics} allClinics={mockClinics} />
+        <SearchBar onSearch={handleSearch} isLoading={loading} />
+
+        {error && (
+          <div className="mt-4 text-sm text-red-200 bg-red-900/30 border border-red-500/30 rounded-lg px-4 py-3">
+            {error}
+          </div>
+        )}
 
         {/* Results Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
@@ -111,6 +101,7 @@ export function SearchServicePage({ onBack, onSelectClinic }: SearchServicePageP
             selectedClinic={selectedClinic}
             onSelectClinic={handleClinicClick}
             onViewDetails={handleViewDetails}
+            isLoading={loading}
           />
 
           {/* Map - Right Side */}
@@ -118,6 +109,7 @@ export function SearchServicePage({ onBack, onSelectClinic }: SearchServicePageP
             clinics={filteredClinics}
             selectedClinic={selectedClinic}
             onSelectClinic={handleClinicClick}
+            isLoading={loading}
           />
         </div>
       </div>

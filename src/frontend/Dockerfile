@@ -1,27 +1,30 @@
-# src/frontend/Dockerfile
-
-# Etapa 1: Construcción
-FROM node:18-alpine as build
-
+FROM node:20-alpine AS deps
 WORKDIR /app
 
-# Copiamos package.json y package-lock.json
-COPY src/frontend/package*.json ./
+# Install dependencies
+COPY package*.json ./
+RUN npm ci
 
-# Instalamos dependencias
-RUN npm install
+FROM deps AS builder
+WORKDIR /app
+COPY . .
 
-# Copiamos el resto del código fuente del frontend
-COPY src/frontend/ .
+# Inject API base URL at build time (can be overridden with --build-arg)
+ARG VITE_API_URL=http://localhost:8000
+ENV VITE_API_URL=${VITE_API_URL}
 
-# Construimos la versión de producción
+# Build the production bundle
 RUN npm run build
 
-# Etapa 2: Servidor Web ligero (Nginx) para servir los archivos
-FROM nginx:alpine
-COPY --from=build /app/dist /usr/share/nginx/html
-# (Si tu carpeta de salida es 'build' en vez de 'dist', cambia la línea de arriba)
+FROM node:20-alpine AS runner
+WORKDIR /app
 
-EXPOSE 80
+# Lightweight static file server
+RUN npm install -g serve
 
-CMD ["nginx", "-g", "daemon off;"]
+# Copy built assets
+COPY --from=builder /app/dist ./dist
+
+EXPOSE 4173
+
+CMD ["serve", "-s", "dist", "-l", "4173"]

@@ -1,13 +1,55 @@
 import { MapPin } from 'lucide-react';
-import { Clinic } from './SearchServicePage';
+import { Clinic } from './types';
 
 interface MapViewProps {
   clinics: Clinic[];
   selectedClinic: string | null;
   onSelectClinic: (id: string) => void;
+  isLoading?: boolean;
 }
 
-export function MapView({ clinics, selectedClinic, onSelectClinic }: MapViewProps) {
+export function MapView({ clinics, selectedClinic, onSelectClinic, isLoading = false }: MapViewProps) {
+  const clinicsWithCoords = clinics.filter(
+    (clinic) =>
+      typeof clinic.latitude === 'number' &&
+      typeof clinic.longitude === 'number' &&
+      clinic.latitude !== null &&
+      clinic.longitude !== null
+  );
+
+  const latitudes = clinicsWithCoords.map((c) => c.latitude as number);
+  const longitudes = clinicsWithCoords.map((c) => c.longitude as number);
+
+  const minLat = latitudes.length ? Math.min(...latitudes) : 0;
+  const maxLat = latitudes.length ? Math.max(...latitudes) : 1;
+  const minLng = longitudes.length ? Math.min(...longitudes) : 0;
+  const maxLng = longitudes.length ? Math.max(...longitudes) : 1;
+
+  const latRange = maxLat - minLat || 1;
+  const lngRange = maxLng - minLng || 1;
+
+  const fallbackPositions = [
+    { top: '25%', left: '30%' },
+    { top: '45%', left: '60%' },
+    { top: '60%', left: '25%' },
+    { top: '35%', left: '70%' },
+    { top: '70%', left: '50%' }
+  ];
+
+  const getPosition = (clinic: Clinic, index: number) => {
+    if (clinicsWithCoords.length === 0 || clinic.latitude === undefined || clinic.longitude === undefined || clinic.latitude === null || clinic.longitude === null) {
+      return fallbackPositions[index % fallbackPositions.length];
+    }
+
+    const topPercent = 10 + (((maxLat - clinic.latitude) / latRange) * 80);
+    const leftPercent = 10 + (((clinic.longitude - minLng) / lngRange) * 80);
+
+    return {
+      top: `${Math.min(90, Math.max(10, topPercent))}%`,
+      left: `${Math.min(90, Math.max(10, leftPercent))}%`,
+    };
+  };
+
   return (
     <div className="bg-gradient-to-br from-green-900/40 to-green-950/40 backdrop-blur-sm rounded-2xl p-6 border border-green-700/30 h-[600px] relative overflow-hidden">
       <h2 className="text-2xl text-white mb-4">Map View</h2>
@@ -30,17 +72,15 @@ export function MapView({ clinics, selectedClinic, onSelectClinic }: MapViewProp
           <div className="absolute left-3/4 top-0 bottom-0 w-0.5 bg-green-700/40"></div>
         </div>
 
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center text-green-200 bg-black/20">
+            Loading map data...
+          </div>
+        )}
+
         {/* Clinic Markers */}
-        {clinics.map((clinic, index) => {
-          // Calculate position based on index for demo
-          const positions = [
-            { top: '25%', left: '30%' },
-            { top: '45%', left: '60%' },
-            { top: '60%', left: '25%' },
-            { top: '35%', left: '70%' },
-            { top: '70%', left: '50%' }
-          ];
-          const position = positions[index % positions.length];
+        {!isLoading && clinics.map((clinic, index) => {
+          const position = getPosition(clinic, index);
           const isSelected = selectedClinic === clinic.id;
 
           return (
@@ -68,11 +108,8 @@ export function MapView({ clinics, selectedClinic, onSelectClinic }: MapViewProp
                 {isSelected && (
                   <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-black/90 rounded-lg p-3 border border-green-500">
                     <p className="text-white text-sm mb-1">{clinic.name}</p>
-                    <p className="text-green-300 text-xs mb-1">{clinic.type}</p>
-                    <div className="flex items-center gap-1 text-xs text-yellow-400">
-                      <span>★</span>
-                      <span>{clinic.rating}</span>
-                    </div>
+                    <p className="text-green-300 text-xs mb-1">{clinic.classification || clinic.institution || 'Healthcare facility'}</p>
+                    <p className="text-green-400 text-[11px] truncate">{clinic.address}</p>
                     {/* Arrow */}
                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-px">
                       <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-green-500"></div>

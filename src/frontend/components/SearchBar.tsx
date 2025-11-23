@@ -1,13 +1,13 @@
 import { Search, MapPin, Calendar, Building2, Shield, SlidersHorizontal } from 'lucide-react';
 import { useState } from 'react';
-import { Clinic } from './SearchServicePage';
+import { SearchFilters } from './types';
 
 interface SearchBarProps {
-  onSearch: (results: Clinic[]) => void;
-  allClinics: Clinic[];
+  onSearch: (filters: SearchFilters) => void;
+  isLoading?: boolean;
 }
 
-export function SearchBar({ onSearch, allClinics }: SearchBarProps) {
+export function SearchBar({ onSearch, isLoading = false }: SearchBarProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [location, setLocation] = useState('');
   const [date, setDate] = useState('');
@@ -16,34 +16,13 @@ export function SearchBar({ onSearch, allClinics }: SearchBarProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const handleSearch = () => {
-    let results = allClinics;
-
-    if (searchQuery) {
-      results = results.filter(clinic =>
-        clinic.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        clinic.address.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    if (location) {
-      results = results.filter(clinic =>
-        clinic.address.toLowerCase().includes(location.toLowerCase())
-      );
-    }
-
-    if (type) {
-      results = results.filter(clinic =>
-        clinic.type.toLowerCase().includes(type.toLowerCase())
-      );
-    }
-
-    if (insurance) {
-      results = results.filter(clinic =>
-        clinic.insurance.some(ins => ins.toLowerCase().includes(insurance.toLowerCase()))
-      );
-    }
-
-    onSearch(results);
+    onSearch({
+      query: searchQuery,
+      location,
+      date,
+      type,
+      insurance,
+    });
   };
 
   return (
@@ -62,9 +41,10 @@ export function SearchBar({ onSearch, allClinics }: SearchBarProps) {
         </div>
         <button
           onClick={handleSearch}
+          disabled={isLoading}
           className="px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:shadow-lg hover:shadow-green-500/30 transition-all"
         >
-          Search
+          {isLoading ? 'Searching...' : 'Search'}
         </button>
       </div>
 

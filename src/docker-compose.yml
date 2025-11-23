@@ -1,0 +1,44 @@
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: samilife-backend
+    env_file:
+      - .env
+    environment:
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+    volumes:
+      - ./backend/logs:/app/logs
+    ports:
+      - "8000:8000"
+    networks:
+      - samilife-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:8000
+    container_name: samilife-frontend
+    environment:
+      VITE_API_URL: http://localhost:8000
+    ports:
+      - "5173:4173"
+    depends_on:
+      - backend
+    networks:
+      - samilife-network
+    restart: unless-stopped
+
+networks:
+  samilife-network:
+    driver: bridge

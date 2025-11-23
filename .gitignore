@@ -47,7 +47,10 @@ output/
 # ==========================
 # WEB SCRAPING & DRIVERS
 # ==========================
+# Logs (excepto los de backend que están en src/backend/logs/)
 *.log
+logs/
+!src/backend/logs/.gitkeep
 
 # Drivers de Selenium (Mac/Linux no usan extensión, Windows usa .exe)
 chromedriver
@@ -64,3 +67,20 @@ msedgedriver.exe
 # ==========================
 .vscode/
 .idea/
+.kiro
+
+# ==========================
+# DOCKER
+# ==========================
+# No ignorar Dockerfiles
+!Dockerfile
+!Dockerfile.*
+!docker-compose*.yml
+!.dockerignore
+
+# Ignorar archivos .env de Docker (excepto ejemplos)
+src/backend/.env
+!src/backend/.env.docker.example
+
+.hypothesis/
+/src/data

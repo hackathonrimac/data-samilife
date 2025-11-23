@@ -1,21 +1,21 @@
 import { Pill, CheckCircle, XCircle, DollarSign, Search } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { MedicationInfo } from '../../api/api';
 
 interface MedicationsTabProps {
-  clinic: any;
+  clinicName: string;
+  medications: MedicationInfo[];
 }
 
-export function MedicationsTab({ clinic }: MedicationsTabProps) {
+export function MedicationsTab({ clinicName, medications }: MedicationsTabProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
 
-  // Get unique categories
-  const categories = ['All', ...new Set(clinic.medications.map((med: any) => med.category))];
+  const categories = useMemo(() => ['All', ...new Set(medications.map((med) => med.tipo))], [medications]);
 
-  // Filter medications
-  const filteredMedications = clinic.medications.filter((med: any) => {
-    const matchesSearch = med.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'All' || med.category === selectedCategory;
+  const filteredMedications = medications.filter((med) => {
+    const matchesSearch = med.nombre.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === 'All' || med.tipo === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -24,7 +24,7 @@ export function MedicationsTab({ clinic }: MedicationsTabProps) {
       <div className="bg-gradient-to-br from-green-900/40 to-green-950/40 backdrop-blur-sm rounded-2xl p-6 border border-green-700/30">
         <h2 className="text-2xl text-white mb-6">Available Medications</h2>
         <p className="text-green-200 mb-6">
-          Browse the medications available at {clinic.name}. Contact the pharmacy for more information.
+          Browse the medications available at {clinicName}. Contact the pharmacy for more information.
         </p>
 
         {/* Search and Filter */}
@@ -61,9 +61,11 @@ export function MedicationsTab({ clinic }: MedicationsTabProps) {
 
         {/* Medications Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {filteredMedications.map((medication: any) => (
+          {filteredMedications.map((medication) => {
+            const inStock = medication.stock > 0 || (medication.disponible || '').toLowerCase() === 'si';
+            return (
             <div
-              key={medication.id}
+              key={medication.codigo_med}
               className="bg-black/30 rounded-xl p-4 border border-green-700/30 hover:border-green-500/50 transition-all"
             >
               <div className="flex items-start gap-4">
@@ -74,18 +76,18 @@ export function MedicationsTab({ clinic }: MedicationsTabProps) {
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-white mb-1">{medication.name}</h3>
-                  <p className="text-sm text-green-300 mb-2">{medication.category}</p>
+                  <h3 className="text-white mb-1">{medication.nombre}</h3>
+                  <p className="text-sm text-green-300 mb-2">{medication.tipo} • {medication.forma_farmaceutica}</p>
                   
                   <div className="flex items-center justify-between">
                     {/* Stock Status */}
                     <div className={`flex items-center gap-1 text-sm ${
-                      medication.inStock ? 'text-green-400' : 'text-red-400'
+                      inStock ? 'text-green-400' : 'text-red-400'
                     }`}>
-                      {medication.inStock ? (
+                      {inStock ? (
                         <>
                           <CheckCircle className="w-4 h-4" />
-                          <span>In Stock</span>
+                          <span>In Stock ({medication.stock})</span>
                         </>
                       ) : (
                         <>
@@ -98,12 +100,12 @@ export function MedicationsTab({ clinic }: MedicationsTabProps) {
                     {/* Price */}
                     <div className="flex items-center gap-1 text-white">
                       <DollarSign className="w-4 h-4 text-green-400" />
-                      <span>{medication.price}</span>
+                      <span>S/. {medication.precio.toFixed(2)}</span>
                     </div>
                   </div>
 
                   {/* Action Button */}
-                  {medication.inStock && (
+                  {inStock && (
                     <button className="mt-3 w-full px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:shadow-lg hover:shadow-green-500/30 transition-all text-sm">
                       Request Information
                     </button>
@@ -111,7 +113,8 @@ export function MedicationsTab({ clinic }: MedicationsTabProps) {
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* No Results */}

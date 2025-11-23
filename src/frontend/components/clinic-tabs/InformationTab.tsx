@@ -1,11 +1,14 @@
-import { MapPin, Phone, Mail, Clock, Star } from 'lucide-react';
+import { MapPin, Mail, Star, Globe, Shield } from 'lucide-react';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
+import { EstablishmentInfo } from '../../api/api';
 
 interface InformationTabProps {
-  clinic: any;
+  clinic: EstablishmentInfo;
 }
 
 export function InformationTab({ clinic }: InformationTabProps) {
+  const servicesPreview = clinic.servicios.slice(0, 4).map((s) => s.servicio).join(' • ');
+
   return (
     <div className="space-y-6">
       {/* Clinic Image */}
@@ -13,20 +16,26 @@ export function InformationTab({ clinic }: InformationTabProps) {
         <div className="aspect-video w-full rounded-xl overflow-hidden bg-green-800/30 mb-4">
           <ImageWithFallback
             src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&h=500&fit=crop"
-            alt={clinic.name}
+            alt={clinic.nombre}
             className="w-full h-full object-cover"
           />
         </div>
         
         <div className="flex items-center gap-2 mb-4">
           <Star className="w-5 h-5 text-yellow-400" fill="currentColor" />
-          <span className="text-white text-lg">{clinic.rating} Rating</span>
+          <span className="text-white text-lg">{clinic.clasificacion}</span>
         </div>
 
-        <h2 className="text-2xl text-white mb-4">About {clinic.name}</h2>
-        <p className="text-green-200 leading-relaxed mb-6">
-          {clinic.description}
+        <h2 className="text-2xl text-white mb-2">About {clinic.nombre}</h2>
+        <p className="text-green-200 leading-relaxed mb-4">
+          {clinic.establecimiento} • {clinic.institucion}
         </p>
+
+        {servicesPreview && (
+          <p className="text-sm text-green-300">
+            Featured services: {servicesPreview}
+          </p>
+        )}
       </div>
 
       {/* Contact Information */}
@@ -38,33 +47,43 @@ export function InformationTab({ clinic }: InformationTabProps) {
             <MapPin className="w-5 h-5 text-green-400 mt-0.5" />
             <div>
               <p className="text-sm text-green-300 mb-1">Address</p>
-              <p className="text-white">{clinic.address}</p>
+              <p className="text-white">{clinic.direccion}</p>
             </div>
           </div>
 
-          <div className="flex items-start gap-3">
-            <Phone className="w-5 h-5 text-green-400 mt-0.5" />
-            <div>
-              <p className="text-sm text-green-300 mb-1">Phone</p>
-              <p className="text-white">{clinic.phone}</p>
+          {clinic.correo && (
+            <div className="flex items-start gap-3">
+              <Mail className="w-5 h-5 text-green-400 mt-0.5" />
+              <div>
+                <p className="text-sm text-green-300 mb-1">Email</p>
+                <p className="text-white">{clinic.correo}</p>
+              </div>
             </div>
-          </div>
+          )}
 
-          <div className="flex items-start gap-3">
-            <Mail className="w-5 h-5 text-green-400 mt-0.5" />
-            <div>
-              <p className="text-sm text-green-300 mb-1">Email</p>
-              <p className="text-white">{clinic.email}</p>
+          {clinic.pagina && (
+            <div className="flex items-start gap-3">
+              <Globe className="w-5 h-5 text-green-400 mt-0.5" />
+              <div>
+                <p className="text-sm text-green-300 mb-1">Website</p>
+                <a href={clinic.pagina} target="_blank" rel="noreferrer" className="text-white underline">
+                  {clinic.pagina}
+                </a>
+              </div>
             </div>
-          </div>
+          )}
 
-          <div className="flex items-start gap-3">
-            <Clock className="w-5 h-5 text-green-400 mt-0.5" />
-            <div>
-              <p className="text-sm text-green-300 mb-1">Hours</p>
-              <p className="text-white">{clinic.hours}</p>
+          {clinic.seguros.length > 0 && (
+            <div className="flex items-start gap-3">
+              <Shield className="w-5 h-5 text-green-400 mt-0.5" />
+              <div>
+                <p className="text-sm text-green-300 mb-1">Accepted Insurance</p>
+                <p className="text-white text-sm">
+                  {clinic.seguros.map((seguro) => seguro.seguro).join(' • ')}
+                </p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 

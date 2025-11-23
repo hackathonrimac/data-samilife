@@ -1,39 +1,34 @@
-import { MapPin, Star, Shield } from 'lucide-react';
-import { Clinic } from './SearchServicePage';
+import { MapPin, Shield, Info } from 'lucide-react';
+import { Clinic } from './types';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { useEffect, useState } from 'react';
 
 interface ClinicListProps {
   clinics: Clinic[];
   selectedClinic: string | null;
   onSelectClinic: (id: string) => void;
   onViewDetails: (id: string) => void;
+  isLoading?: boolean;
 }
 
-export function ClinicList({ clinics, selectedClinic, onSelectClinic, onViewDetails }: ClinicListProps) {
-  const [clinicImages, setClinicImages] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    // Load images for clinics
-    const loadImages = async () => {
-      const images: Record<string, string> = {};
-      for (const clinic of clinics) {
-        if (!clinicImages[clinic.id]) {
-          // We'll use a placeholder for now
-          images[clinic.id] = '';
-        }
-      }
-      setClinicImages(prev => ({ ...prev, ...images }));
-    };
-    loadImages();
-  }, [clinics]);
-
+export function ClinicList({ clinics, selectedClinic, onSelectClinic, onViewDetails, isLoading = false }: ClinicListProps) {
   return (
     <div className="bg-gradient-to-br from-green-900/40 to-green-950/40 backdrop-blur-sm rounded-2xl p-6 border border-green-700/30 h-[600px] overflow-y-auto">
       <h2 className="text-2xl text-white mb-4">Results ({clinics.length})</h2>
       
       <div className="space-y-4">
-        {clinics.map((clinic) => (
+        {isLoading && (
+          <div className="text-green-200 text-sm bg-black/30 border border-green-700/40 rounded-xl p-4">
+            Searching for clinics...
+          </div>
+        )}
+
+        {!isLoading && clinics.length === 0 && (
+          <div className="text-green-200 text-sm bg-black/30 border border-green-700/40 rounded-xl p-4">
+            No clinics found with the current filters.
+          </div>
+        )}
+
+        {!isLoading && clinics.map((clinic) => (
           <div
             key={clinic.id}
             onClick={() => onSelectClinic(clinic.id)}
@@ -55,24 +50,25 @@ export function ClinicList({ clinics, selectedClinic, onSelectClinic, onViewDeta
 
               {/* Clinic Info */}
               <div className="flex-1 min-w-0">
-                <h3 className="text-white mb-1">{clinic.name}</h3>
-                <p className="text-sm text-green-300 mb-2">{clinic.type}</p>
+                <h3 className="text-white mb-1">{clinic.name || 'Establecimiento sin nombre'}</h3>
+                <p className="text-sm text-green-300 mb-2">{clinic.classification || 'Sin clasificación'}</p>
                 
                 <div className="flex items-center gap-2 text-sm text-green-200 mb-2">
                   <MapPin className="w-4 h-4" />
                   <span className="truncate">{clinic.address}</span>
                 </div>
 
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 text-yellow-400" fill="currentColor" />
-                    <span className="text-sm text-white">{clinic.rating}</span>
-                  </div>
-                  
-                  <div className="flex items-center gap-1">
-                    <Shield className="w-4 h-4 text-green-400" />
-                    <span className="text-xs text-green-300">{clinic.insurance.length} Plans</span>
-                  </div>
+                <div className="flex items-center gap-3 text-xs text-green-300">
+                  {clinic.institution && (
+                    <span className="inline-flex items-center gap-1">
+                      <Shield className="w-4 h-4 text-green-400" />
+                      <span>{clinic.institution}</span>
+                    </span>
+                  )}
+                  <span className="inline-flex items-center gap-1">
+                    <Info className="w-4 h-4 text-green-400" />
+                    <span>Code: {clinic.id}</span>
+                  </span>
                 </div>
 
                 <button
