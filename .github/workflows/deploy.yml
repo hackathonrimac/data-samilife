@@ -40,6 +40,7 @@ jobs:
         ECR_REPOSITORY: ${{ secrets.ECR_REPO_BACKEND }}
         IMAGE_TAG: latest
       run: |
+        cd src/backend
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f src/backend/Dockerfile .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
@@ -73,5 +74,6 @@ jobs:
         ECR_REPOSITORY: ${{ secrets.ECR_REPO_FRONTEND }}
         IMAGE_TAG: latest
       run: |
+        cd src/frontend
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f src/frontend/Dockerfile .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
