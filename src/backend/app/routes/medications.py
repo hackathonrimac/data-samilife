@@ -12,6 +12,41 @@ from app.schemas.responses import MedicationInfo
 router = APIRouter(prefix="", tags=["medications"])
 
 
+@router.get("/get/medicina", response_model=List[dict])
+async def search_medicine_by_name(
+    nombre: str = Query(..., description="Medicine name to search for"),
+    db: AsyncSession = Depends(get_db_session)
+):
+    """
+    Search for medicines by name across all establishments.
+    Returns medicine information with establishments where it's available and stock.
+    
+    Query Parameters:
+        nombre: Medicine name (partial match supported)
+    
+    Returns:
+        List of medicines with establishment information and stock
+    """
+    from app.services.medication_service import search_medicine_by_name as search_service
+    
+    try:
+        results = await search_service(db=db, nombre=nombre)
+        return results
+    except HTTPException:
+        raise
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error searching medicine by name: {type(e).__name__}: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "code": "INTERNAL_ERROR",
+                "message": f"An unexpected error occurred while searching medicine: {type(e).__name__}"
+            }
+        )
+
+
 @router.get("/get/{cod_unico}/farmacos", response_model=List[MedicationInfo])
 async def search_medications_endpoint(
     cod_unico: str,

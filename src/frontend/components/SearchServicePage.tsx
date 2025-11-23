@@ -16,6 +16,8 @@ const mapEstablishmentToClinic = (establishment: EstablishmentSummary, index: nu
   name: establishment.nombre,
   address: establishment.direccion,
   classification: establishment.calificacion,
+  latitude: establishment.latitud ?? undefined,
+  longitude: establishment.longitud ?? undefined,
 });
 
 export function SearchServicePage({ onBack, onSelectClinic }: SearchServicePageProps) {
@@ -39,6 +41,7 @@ export function SearchServicePage({ onBack, onSelectClinic }: SearchServicePageP
         fecha: filters?.date || undefined,
         tipo: filters?.type || undefined,
         filtros: Object.keys(dynamicFilters).length ? dynamicFilters : undefined,
+        page: 1,
       });
 
       const mapped = results.map(mapEstablishmentToClinic);

@@ -24,7 +24,9 @@ async def search_establishments(
     lugar: Optional[str] = None,
     fecha: Optional[str] = None,
     tipo: Optional[str] = None,
-    filtros: Optional[Dict[str, Any]] = None
+    filtros: Optional[Dict[str, Any]] = None,
+    page: int = 1,
+    per_page: int = 10
 ) -> List[EstablishmentSummary]:
     """
     Search for healthcare establishments with multiple filter criteria.
@@ -62,10 +64,7 @@ async def search_establishments(
     
     # Execute query and materialize results immediately
     result = await db.execute(query)
-    establishments = result.scalars().all()
-    
-    # Convert to list to materialize the data while session is active
-    establishments = list(establishments)
+    establishments = list(result.scalars().all())
     
     # If date filter is provided, filter by service availability
     if fecha:
@@ -100,6 +99,11 @@ async def search_establishments(
     
     # Convert to EstablishmentSummary objects
     summaries = []
+    # Apply pagination (10 per page)
+    start = (page - 1) * per_page
+    end = start + per_page
+    establishments = establishments[start:end]
+
     for est in establishments:
         try:
             # Ensure required fields are not None
@@ -107,12 +111,23 @@ async def search_establishments(
                 # Skip establishments with missing required data
                 continue
                 
+            lat_val = None
+            lon_val = None
+            try:
+                lat_val = float(est.latitud) if est.latitud is not None else None
+                lon_val = float(est.longitud) if est.longitud is not None else None
+            except (TypeError, ValueError):
+                lat_val = None
+                lon_val = None
+
             summaries.append(
                 EstablishmentSummary(
                     nombre=est.establecimiento,
                     direccion=est.direccion,
                     calificacion=est.clasificacion,
-                    cod_unico=est.cod_unico
+                    cod_unico=est.cod_unico,
+                    latitud=lat_val,
+                    longitud=lon_val
                 )
             )
         except Exception as e:

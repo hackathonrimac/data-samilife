@@ -4,6 +4,7 @@ import { Features } from './components/Features';
 import { Footer } from './components/Footer';
 import { SearchServicePage } from './components/SearchServicePage';
 import { ClinicDetailPage } from './components/ClinicDetailPage';
+import { CheckMedicinePage } from './components/CheckMedicinePage';
 import { useState } from 'react';
 
 export default function App() {
@@ -22,7 +23,7 @@ export default function App() {
       case 'clinic-detail':
         return <ClinicDetailPage clinicId={selectedClinicId!} onBack={() => setCurrentPage('search-service')} />;
       case 'check-medicine':
-        return <div>Check Medicine Page (Coming Soon)</div>;
+        return <CheckMedicinePage onBack={() => setCurrentPage('home')} />;
       default:
         return (
           <>

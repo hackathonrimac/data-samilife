@@ -27,6 +27,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    env_file:
+      - .env
     container_name: samilife-frontend
     environment:
       VITE_API_URL: http://localhost:8000

@@ -19,6 +19,8 @@ export interface EstablishmentSummary {
   direccion: string;
   calificacion?: string | null;
   cod_unico?: string | null;
+  latitud?: number | null;
+  longitud?: number | null;
 }
 
 export interface ServiceInfo {
@@ -93,6 +95,7 @@ export interface SearchEstablishmentsParams {
   fecha?: string;
   tipo?: string;
   filtros?: Record<string, unknown>;
+  page?: number;
 }
 
 export interface AppointmentFilters {
@@ -138,6 +141,7 @@ export const api = {
       lugar: params.lugar,
       fecha: params.fecha,
       tipo: params.tipo,
+      page: params.page?.toString(),
     };
 
     if (params.filtros) {

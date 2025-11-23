@@ -18,6 +18,7 @@ async def search_establishments_endpoint(
     fecha: Optional[str] = Query(None, description="Date in YYYY-MM-DD format"),
     tipo: Optional[str] = Query(None, description="Institution type (público/privado)"),
     filtros: Optional[str] = Query(None, description="Custom JSON filters"),
+    page: int = Query(1, ge=1, description="Page number for pagination (10 results per page)"),
     db: AsyncSession = Depends(get_db_session)
 ):
     """
@@ -68,7 +69,9 @@ async def search_establishments_endpoint(
             lugar=lugar,
             fecha=fecha,
             tipo=tipo,
-            filtros=filtros_dict
+            filtros=filtros_dict,
+            page=page,
+            per_page=10
         )
         return results
     except HTTPException:
