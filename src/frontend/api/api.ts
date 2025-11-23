@@ -1,13 +1,8 @@
 const resolveBaseUrl = () => {
-  const envUrl = import.meta.env.VITE_API_URL as string | undefined;
-  if (envUrl && envUrl.trim()) {
-    return envUrl.trim();
-  }
-
-  // Fallback: same host, default backend port
-  if (typeof window !== "undefined") {
-    return `${window.location.protocol}//${window.location.hostname}:8000`;
-  }
+  // const envUrl = import.meta.env.VITE_API_URL as string | undefined;
+  // if (envUrl && envUrl.trim()) {
+  //   return envUrl.trim();
+  // }
 
   return "https://kfgm7mgsa3.us-east-1.awsapprunner.com/";
 };
