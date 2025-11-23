@@ -27,10 +27,11 @@
 
 | Nombre completo | Usuario GitHub | Rol | Especialidad |
 |-----------------|----------------|-----|--------------|
-| [Ejemplo: Juan Pérez] | @juanperez | Full Stack Developer | React + Node.js |
-| [Ejemplo: María López] | @marialopez | Data Scientist | ML & Python |
-| [Añade más filas según sea necesario] | | | |
-
+| [Diva Stewart Maquera Bobadilla] | @stewartmb | PM | Agile Methodologies |
+| [Rodrigo Li Chumpitaz] | @RodrigoLiC | Cloud Engineer + Data Engineer + Backend | AWS + Seaborn + FastAPI |
+| [Sergio Sebastián Lezama Orihuela] | @SergioSLO  | DBA & Backend | Postgres + FastAPI |
+| [Jorge Alexander Leon Villarreyes] | @JorgeL2005 | Data Engineer & Frontend | Next.js + React |
+| [Valentina Celeste Alvarez Beraun] | @vvalentina-alvarez | Data Engineer & UX/UI | Figma + React |
 ---
 
 ## 1. ¿Qué hace tu proyecto?
@@ -42,8 +43,11 @@
 
 **Tu respuesta:**
 
-[Describe qué hace tu proyecto]
+Nosotros somos SamiLife, una plataforma diseñada para ayudar a los usuarios a encontrar centros de salud y médicos especializados según su ubicación geográfica. Nuestro objetivo es facilitar el acceso a servicios médicos cercanos y adecuados a las necesidades de cada persona, mejorando así su experiencia al buscar y seleccionar atención médica.
 
+La selección de profesionales se realiza considerando la aseguradora del usuario, ofreciendo información relevante, actualizada y confiable sobre los médicos disponibles en su zona. Además, brindamos detalles sobre los servicios que ofrece cada centro de salud, permitiendo tomar decisiones informadas sobre su atención.
+
+Por otra parte, contamos con información unificada sobre medicamentos referenciales asociados a distintas especialidades médicas, ayudando a los usuarios a comprender mejor sus opciones de tratamiento. También incorporamos un buscador de medicamentos por nombre o por especialidad, proporcionando datos claros y precisos sobre las alternativas disponibles.
 ---
 
 ## 2. ¿Cómo lo construyeron?
@@ -62,7 +66,15 @@
 
 **Tu respuesta:**
 
-[Describe cómo construyeron la solución]
+Contruimos la solución con:
+- Web scrapping en Python usando request de apis de susalud 
+- Pipeline ETL con Pandas para unificar, limpiar y normalizar la información de los médicos, centros de salud y medicinas.
+- Base de datos Aurora RDS para almacenamiento estructurado.
+- API REST con FastAPI para consultas rápidas.
+- Frontend en React con diseño responsivo.
+- Búsqueda por proximidad geográfica utilizando PostGIS para mejorar los resultados basados en la ubicación del usuario.
+- Deploy en AWS usando App Runner para el backend y frontend, y Aurora RDS para la base de datos.
+- Integración de Google Maps API para mostrar la ubicación de los centros de salud en un mapa interactivo.
 
 ---
 
@@ -114,7 +126,7 @@ Indica dónde vive el código final:
 
 Si desplegaste tu aplicación, comparte el enlace aquí.
 
-**Demo URL:** [URL de la aplicación desplegada]
+**Demo URL:** (https://kfgm7mgsa3.us-east-1.awsapprunner.com/)
 
 **Ejemplo:** https://buscador-doctores.vercel.app
 
