@@ -34,8 +34,8 @@ RUN apt-get update && \
 # Instalar dependencias de Python
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar el código de la aplicación
-COPY --chown=appuser:appuser src/backend/ .
+# Copiar el código de la aplicación (dentro del contexto de build ./backend)
+COPY --chown=appuser:appuser app/ ./app/
 
 # Crear directorio para logs
 RUN mkdir -p logs && chown -R appuser:appuser logs
