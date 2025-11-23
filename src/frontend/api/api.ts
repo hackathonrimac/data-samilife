@@ -9,7 +9,7 @@ const resolveBaseUrl = () => {
     return `${window.location.protocol}//${window.location.hostname}:8000`;
   }
 
-  return "http://localhost:8000";
+  return "https://kfgm7mgsa3.us-east-1.awsapprunner.com/";
 };
 
 const API_BASE_URL = resolveBaseUrl();
