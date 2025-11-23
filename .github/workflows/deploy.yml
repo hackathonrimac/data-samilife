@@ -3,7 +3,7 @@ name: Deploy to Amazon ECR
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch:      # <--- ESTO AGREGA EL BOTÓN MANUAL
+  workflow_dispatch:      # Botón manual activado
 
 env:
   AWS_REGION: us-east-1
@@ -12,11 +12,11 @@ jobs:
   deploy-backend:
     name: Build & Push Backend
     runs-on: ubuntu-latest
-    # Se ejecuta si es manual (workflow_dispatch) O si hubo cambios en backend/requirements
+    # Filtro robusto: Se ejecuta si es manual O si hay cambios en src/backend o requirements.txt
     if: |
       github.event_name == 'workflow_dispatch' ||
-      contains(github.event.head_commit.modified, 'src/backend/') || 
-      contains(github.event.head_commit.modified, 'requirements.txt')
+      contains(toJson(github.event.head_commit.modified), 'src/backend/') || 
+      contains(toJson(github.event.head_commit.modified), 'requirements.txt')
 
     steps:
     - name: Checkout code
@@ -40,17 +40,22 @@ jobs:
         ECR_REPOSITORY: ${{ secrets.ECR_REPO_BACKEND }}
         IMAGE_TAG: latest
       run: |
+        # CAMBIO CLAVE: Entramos a la carpeta para usarla como contexto de build
         cd src/backend
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f src/backend/Dockerfile .
+        
+        # Construye usando el contexto actual ('.', que es src/backend)
+        # Esto hace que el Dockerfile use rutas cortas como 'COPY requirements.txt .'
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
   deploy-frontend:
     name: Build & Push Frontend
     runs-on: ubuntu-latest
-    # Se ejecuta si es manual (workflow_dispatch) O si hubo cambios en frontend
+    # Filtro robusto: Se ejecuta si es manual O si hay cambios en src/frontend
     if: |
       github.event_name == 'workflow_dispatch' ||
-      contains(github.event.head_commit.modified, 'src/frontend/')
+      contains(toJson(github.event.head_commit.modified), 'src/frontend/')
 
     steps:
     - name: Checkout code
@@ -74,6 +79,10 @@ jobs:
         ECR_REPOSITORY: ${{ secrets.ECR_REPO_FRONTEND }}
         IMAGE_TAG: latest
       run: |
+        # CAMBIO CLAVE: Entramos a la carpeta para usarla como contexto de build
         cd src/frontend
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f src/frontend/Dockerfile .
+        
+        # Construye usando el contexto actual ('.', que es src/frontend)
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
