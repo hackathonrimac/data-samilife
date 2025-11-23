@@ -33,12 +33,12 @@ env/
 # DATOS (DATA SCIENCE)
 # ==========================
 # Ignora carpetas de descarga y salida
-data/
+# data/
 downloads/
 output/
 
 # Ignora archivos de datos específicos (Excel de salud, etc.)
-*.csv
+# *.csv
 *.xlsx
 *.xls
 *.json
