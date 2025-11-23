@@ -15,6 +15,7 @@ import csv
 import io
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Fuentes
 SRC_SUSALUD = Path("data_profesionales.csv")
@@ -211,13 +212,17 @@ def build_asegurado():
             if not cod or not seguro:
                 continue
             key = (cod, seguro)
+            costo = (row.get("costo_consulta") or "").strip()
+            if costo.lower().startswith("s/"):
+                costo = costo[2:].strip()
+
             asegurados.setdefault(
                 key,
                 {
                     "cod_unico": cod,
                     "seguro": seguro,
                     "red": (row.get("red") or "").strip(),
-                    "costo_consulta": (row.get("costo_consulta") or "").strip(),
+                    "costo_consulta": costo,
                 },
             )
 
@@ -237,17 +242,28 @@ def load_psycopg2():
         raise SystemExit("psycopg2 no está instalado; ejecuta `pip install psycopg2-binary` para usar --load") from exc
     return psycopg2, sql
 
-
 def connect():
+    # Cargar variables desde ../.env si existe (relativo a este archivo)
+    env_path = Path(__file__).resolve().parent.parent.parent / ".env"
+    print(f"Cargando variables de entorno desde {env_path}")
+    load_dotenv(dotenv_path=env_path)
+
+    host = os.getenv("POSTGRES_HOST", "localhost")
+    port = os.getenv("POSTGRES_PORT", "5432")
+    dbname = os.getenv("POSTGRES_DB", "rimac")
+    user = os.getenv("POSTGRES_USER", "postgres")
+    password = os.getenv("POSTGRES_PASSWORD", "313916")
+
+    print(f"Conectando a Postgres en {host}:{port}, base de datos '{dbname}', usuario '{user}'")
+
     psycopg2, _ = load_psycopg2()
     return psycopg2.connect(
-        host=os.getenv("PGHOST", "localhost"),
-        port=os.getenv("PGPORT", "5432"),
-        dbname=os.getenv("PGDATABASE", "rimac"),
-        user=os.getenv("PGUSER", "postgres"),
-        password=os.getenv("PGPASSWORD", "313916"),
+        host=host,
+        port=port,
+        dbname=dbname,
+        user=user,
+        password=password,
     )
-
 
 def ensure_schema(conn):
     _, sql = load_psycopg2()
