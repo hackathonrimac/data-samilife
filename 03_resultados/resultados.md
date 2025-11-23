@@ -82,16 +82,19 @@ Contruimos la solución con:
 
 > Describe los principales retos y dificultades que encontraron durante el desarrollo del proyecto. ¿Cómo los abordaron y qué soluciones implementaron?
 
-**Ejemplo:**  
-*"Enfrentamos tres desafíos principales:"*
-1. *Variabilidad de estructura web: Cada clínica tiene un diseño diferente. Lo resolvimos creando scrapers específicos con patrones adaptativos.*
-2. *Normalización de datos: Encontramos 15 nomenclaturas distintas para especialidades. Creamos un diccionario de sinónimos y lógica de matching fuzzy.*
-3. *Rendimiento de búsqueda: Con 5,000+ registros, las búsquedas eran lentas. Implementamos indexación con Elasticsearch reduciendo tiempos de 5s a <500ms.*
-
 **Tu respuesta:**
 
-[Describe los desafíos que enfrentaron]
+Enfrentamos tres desafíos técnicos críticos debido a la naturaleza fragmentada de la salud pública:
 
+1.  **Inconsistencia Geoespacial (RENIPRESS):** La base de datos oficial de establecimientos de salud (RENIPRESS) proporciona direcciones en formato de texto libre, muchas veces con errores tipográficos o referencias ambiguas, y no incluye coordenadas GPS precisas.
+    * *Solución:* Implementamos un pipeline de **Geocodificación inversa**, utilizando librerías espaciales para traducir direcciones textuales en coordenadas (latitud/longitud) exactas, permitiendo la visualización correcta en nuestro mapa interactivo.
+
+2.  **Fragmentación Semántica en Especialidades:** Cada clínica y fuente de datos nombra las especialidades de forma distinta (ej. "Gastro", "Gastroenterología", "Digestivo").
+    * *Solución:* Desarrollamos una **capa de normalización** en nuestro proceso ETL. Creamos diccionarios de sinónimos y algoritmos de coincidencia de texto (fuzzy matching) para agrupar todas las variantes bajo categorías estándar unificadas.
+
+3.  **Heterogeneidad de Fuentes de Datos:** Integrar fuentes tan dispares como DIGEMID (precios/stock) y el Colegio Médico (datos de doctores) requería manejar estructuras de datos incompatibles.
+    * *Solución:* Diseñamos una arquitectura de **"Ingesta Modular"**. En lugar de un solo scraper gigante, creamos módulos independientes para cada fuente que limpian y transforman la data a un esquema común (JSON estandarizado) antes de ingresarla a nuestra base de datos central.
+    * 
 ---
 
 ## 4. Demo y presentación
