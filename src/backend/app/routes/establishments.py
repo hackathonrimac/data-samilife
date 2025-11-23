@@ -71,13 +71,19 @@ async def search_establishments_endpoint(
             filtros=filtros_dict
         )
         return results
+    except HTTPException:
+        # Re-raise HTTPExceptions from service layer
+        raise
     except Exception as e:
-        # Log the error (logging will be implemented in task 10)
+        # Log the error with details
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error searching establishments: {type(e).__name__}: {str(e)}")
         raise HTTPException(
             status_code=500,
             detail={
                 "code": "INTERNAL_ERROR",
-                "message": "An unexpected error occurred while searching establishments"
+                "message": f"An unexpected error occurred while searching establishments: {type(e).__name__}"
             }
         )
 

@@ -43,16 +43,19 @@ def get_database_url() -> str:
 
 def sanitize_error_message(error_msg: str) -> str:
     """Remove sensitive information from error messages."""
+    if not error_msg:
+        return error_msg
+    
     # Remove potential credentials from connection strings
     sensitive_patterns = [
-        os.getenv("DB_PASSWORD", ""),
-        os.getenv("DB_USER", ""),
+        (os.getenv("DB_PASSWORD", ""), "[REDACTED_PASSWORD]"),
+        (os.getenv("DB_USER", ""), "[REDACTED_USER]"),
     ]
     
     sanitized = error_msg
-    for pattern in sensitive_patterns:
-        if pattern:
-            sanitized = sanitized.replace(pattern, "[REDACTED]")
+    for pattern, replacement in sensitive_patterns:
+        if pattern and len(pattern) > 0:
+            sanitized = sanitized.replace(pattern, replacement)
     
     return sanitized
 
@@ -140,9 +143,11 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
             yield session
         except Exception as e:
             await session.rollback()
-            # Sanitize error message before logging
+            # Log the full error for debugging, sanitize for external exposure
+            logger.error(f"Database session error: {type(e).__name__}: {str(e)}")
+            # Sanitize error message before re-raising
             error_msg = sanitize_error_message(str(e))
-            logger.error(f"Database session error: {error_msg}")
+            # Re-raise with sanitized message if it contains sensitive data
+            if error_msg != str(e):
+                raise type(e)(error_msg) from e
             raise
-        finally:
-            await session.close()

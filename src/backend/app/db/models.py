@@ -17,8 +17,9 @@ class Institucion(Base):
     establecimiento = Column(String)
     clasificacion = Column(String)
     correo = Column(String)
-    longitud = Column(Float)
-    latitud = Column(Float)
+    files = Column(String)
+    longitud = Column(String)  # DB stores text; keep as string to avoid type mismatch
+    latitud = Column(String)   # DB stores text; keep as string to avoid type mismatch
     pagina = Column(String)
     
     # Relationships
@@ -106,7 +107,7 @@ class Asegurado(Base):
     cod_unico = Column(String, ForeignKey("institucion.cod_unico"), primary_key=True)
     seguro = Column(String, primary_key=True)
     red = Column(String)
-    costo_consulta = Column(Float)
+    costo_consulta = Column(String)  # Stored as text in DB
     
     # Relationships
     institucion_rel = relationship("Institucion", back_populates="seguros")

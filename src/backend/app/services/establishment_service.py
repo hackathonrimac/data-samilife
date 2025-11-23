@@ -60,9 +60,12 @@ async def search_establishments(
     if filtros:
         query = apply_dynamic_filters(query, filtros, Institucion)
     
-    # Execute query
+    # Execute query and materialize results immediately
     result = await db.execute(query)
     establishments = result.scalars().all()
+    
+    # Convert to list to materialize the data while session is active
+    establishments = list(establishments)
     
     # If date filter is provided, filter by service availability
     if fecha:
@@ -98,14 +101,26 @@ async def search_establishments(
     # Convert to EstablishmentSummary objects
     summaries = []
     for est in establishments:
-        summaries.append(
-            EstablishmentSummary(
-                nombre=est.establecimiento,
-                direccion=est.direccion,
-                calificacion=est.clasificacion,
-                cod_unico=est.cod_unico
+        try:
+            # Ensure required fields are not None
+            if not est.establecimiento or not est.direccion:
+                # Skip establishments with missing required data
+                continue
+                
+            summaries.append(
+                EstablishmentSummary(
+                    nombre=est.establecimiento,
+                    direccion=est.direccion,
+                    calificacion=est.clasificacion,
+                    cod_unico=est.cod_unico
+                )
             )
-        )
+        except Exception as e:
+            # Log validation errors but continue processing
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Skipping establishment {est.cod_unico}: {type(e).__name__}: {str(e)}")
+            continue
     
     return summaries
 

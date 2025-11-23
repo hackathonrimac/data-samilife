@@ -276,8 +276,8 @@ def ensure_schema(conn):
         files TEXT,
         clasificacion TEXT,
         correo TEXT,
-        longitud TEXT,
-        latitud TEXT,
+        longitud FLOAT,
+        latitud FLOAT,
         pagina TEXT
     );
     CREATE TABLE IF NOT EXISTS profesional (
@@ -317,7 +317,7 @@ def ensure_schema(conn):
         cod_unico TEXT REFERENCES institucion(cod_unico),
         seguro TEXT,
         red TEXT,
-        costo_consulta TEXT,
+        costo_consulta NUMERIC,
         PRIMARY KEY (cod_unico, seguro)
     );
     """

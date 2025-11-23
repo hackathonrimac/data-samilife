@@ -14,6 +14,9 @@ class EstablishmentSummary(BaseModel):
     direccion: str = Field(..., description="Establishment address")
     calificacion: Optional[str] = Field(None, description="Establishment rating/classification")
     cod_unico: Optional[str] = Field(None, description="Unique establishment code")
+    
+    class Config:
+        from_attributes = True  # Permite crear desde objetos ORM
 
 
 class ServiceInfo(BaseModel):

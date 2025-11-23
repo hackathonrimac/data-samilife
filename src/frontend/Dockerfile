@@ -1,30 +1,15 @@
-FROM node:20-alpine AS deps
+FROM node:20-alpine
+
 WORKDIR /app
 
-# Install dependencies
+# Instalar dependencias base
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
-FROM deps AS builder
-WORKDIR /app
+# Copiar el resto del código (que luego se montará en desarrollo)
 COPY . .
 
-# Inject API base URL at build time (can be overridden with --build-arg)
-ARG VITE_API_URL=http://localhost:8000
-ENV VITE_API_URL=${VITE_API_URL}
+EXPOSE 5173
 
-# Build the production bundle
-RUN npm run build
-
-FROM node:20-alpine AS runner
-WORKDIR /app
-
-# Lightweight static file server
-RUN npm install -g serve
-
-# Copy built assets
-COPY --from=builder /app/dist ./dist
-
-EXPOSE 4173
-
-CMD ["serve", "-s", "dist", "-l", "4173"]
+# Ejecutar servidor de desarrollo de Vite con auto-reload (instala deps si cambian)
+CMD ["sh", "-c", "npm install && npm run dev -- --host 0.0.0.0 --port 5173"]
