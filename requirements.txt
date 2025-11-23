@@ -15,3 +15,20 @@ webdriver-manager>=4.0.0   # Descarga y actualiza automáticamente los drivers p
 pandas>=2.2.0              # Para organizar lo extraído en DataFrames
 openpyxl>=3.1.0            # Para guardar/leer Excel (.xlsx)
 python-dotenv>=1.0.0       # Para guardar contraseñas/proxies en un archivo .env seguro
+
+
+
+
+
+# Framework Web y Servidor
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+
+# Base de Datos (ORM)
+sqlalchemy>=2.0.0
+
+# Validación de Datos
+pydantic>=2.5.0
+
+# Gestión de Variables de Entorno (.env)
+python-dotenv>=1.0.0
