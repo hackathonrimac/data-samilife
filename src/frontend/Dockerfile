@@ -8,7 +8,11 @@ WORKDIR /app
 # 1. Copiamos package.json desde src/frontend/
 COPY package*.json ./
 
-# variables de entorno
+# variables de entorno (se pasan desde la EC2 en tiempo de build)
+ARG VITE_GOOGLE_MAPS_API_KEY
+ENV VITE_GOOGLE_MAPS_API_KEY=$VITE_GOOGLE_MAPS_API_KEY
+
+
 # Instalamos dependencias
 RUN npm install
 
