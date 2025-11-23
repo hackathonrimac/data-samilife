@@ -78,11 +78,12 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: ${{ secrets.ECR_REPO_FRONTEND }}
         IMAGE_TAG: latest
+        VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}
       run: |
         # CAMBIO CLAVE: Entramos a la carpeta para usarla como contexto de build
         cd src/frontend
         
         # Construye usando el contexto actual ('.', que es src/frontend)
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . --build-arg VITE_GOOGLE_MAPS_API_KEY=$VITE_GOOGLE_MAPS_API_KEY
         
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
