@@ -18,6 +18,7 @@ $RECYCLE.BIN/
 # ==========================
 __pycache__/
 *.py[cod]
+node_modules/
 
 # Entornos virtuales (Nombres comunes)
 venv/
@@ -41,7 +42,6 @@ output/
 # *.csv
 *.xlsx
 *.xls
-*.json
 *.xml
 
 # ==========================
