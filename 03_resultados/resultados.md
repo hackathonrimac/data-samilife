@@ -136,24 +136,19 @@ Si crearon un video demo, compártelo aquí.
 
 **Video:** [URL de YouTube / Loom / Google Drive]
 
-
 ---
 
 ## (opcional) ¿De qué logros están orgullosos?
 
 > Menciona los logros más significativos de tu proyecto. ¿Qué resultados obtuvieron que consideran importantes o destacables?
 
-**Ejemplo:**  
-*"Estamos orgullosos de:"*
-- *Consolidar información de 15 clínicas principales de Lima y 5,000+ médicos*
-- *Lograr una precisión de búsqueda del 92% validada con usuarios reales*
-- *Reducir el tiempo de búsqueda de doctores de 15 minutos (búsqueda manual) a 30 segundos*
-- *Crear una experiencia de usuario intuitiva con 0 capacitación requerida*
-- *Implementar la solución completa (backend + frontend + deploy) en solo 3 días*
-
 **Tu respuesta:**
 
-[Describe tus logros principales]
+Estamos orgullosos de:
+- **Desfragmentar la salud pública:** Logramos unificar y cruzar con éxito 3 fuentes de datos gubernamentales totalmente desconectadas (RENIPRESS, DIGEMID y CMP) en una sola estructura coherente.
+- **Georreferenciación masiva:** Convertimos miles de direcciones en formato texto (con errores tipográficos) en coordenadas precisas para visualizarlas en un mapa interactivo.
+- **Validación del Business Case:** Estructuramos una propuesta de valor sólida donde demostramos cómo Rimac puede reducir siniestralidad y costos operativos mediante la autogestión del usuario.
+- **Resiliencia Técnica:** A pesar de los desafíos complejos en la limpieza de datos, logramos desplegar un MVP funcional con una experiencia de usuario (UX) limpia y moderna tipo "Airbnb".
 
 ---
 
@@ -163,26 +158,19 @@ Si crearon un video demo, compártelo aquí.
 
 **Aprendizajes técnicos:**
 
-**Ejemplo:**  
-*"Técnicamente aprendimos:"*
-- *Web scraping avanzado con manejo de JavaScript dinámico*
-- *Optimización de búsquedas con índices y caching*
-- *Integración de modelos de NLP para búsqueda semántica*
-- *Mejores prácticas para manejo de datos sensibles de salud*
-- *Deploy serverless en AWS con arquitectura escalable*
+**Tu respuesta:**
+
+- **La realidad de la "Data Sucia":** Aprendimos que el mayor reto no es obtener los datos, sino normalizarlos. Implementamos técnicas de limpieza para estandarizar nombres de especialidades médicas.
+- **Geocoding a escala:** Dominamos el uso de librerías geoespaciales para transformar direcciones textuales ambiguas en puntos exactos en el mapa.
+- **Arquitectura de Scraping:** Entendimos la importancia de crear scrapers modulares y resilientes para manejar las inconsistencias de los portales del estado.
 
 **Aprendizajes de trabajo en equipo:**
 
-**Ejemplo:**  
-*"Como equipo aprendimos:"*
-- *La importancia de definir un MVP claro desde el inicio*
-- *Comunicación constante es clave en hackathons intensivos*
-- *Dividir tareas por especialidad acelera el desarrollo*
-- *Pair programming ayuda a resolver problemas más rápido*
-
 **Tu respuesta:**
 
-[Describe qué aprendieron]
+- **Estrategia sobre Código:** Aprendimos que dedicar tiempo inicial al diseño de la arquitectura de datos nos ahorró horas de refactorización posterior.
+- **Adaptabilidad ante imprevistos:** Comprendimos que en una Hackathon, "hecho es mejor que perfecto". Priorizamos cerrar el ciclo de búsqueda principal (Happy Path) sobre funcionalidades secundarias.
+- **Visión de Negocio:** Aprendimos a traducir código técnico en métricas de valor (ahorro de costos y retención) para una corporación como Rimac.
 
 ---
 
@@ -190,26 +178,11 @@ Si crearon un video demo, compártelo aquí.
 
 > Ideas de mejora o próximos pasos si tuvieran 1-3 meses adicionales.
 
-**Ejemplo:**
-
-**Expansión de funcionalidades:**
-- Integrar datos de más clínicas (objetivo: 50+ clínicas en todo Perú)
-- Agregar sistema de reseñas y ratings de pacientes
-- Implementar agendamiento de citas directo desde la plataforma
-- Añadir chatbot con IA para asesoría médica básica
-
-**Mejoras técnicas:**
-- Implementar scraping en tiempo real con actualización automática
-- Añadir machine learning para recomendaciones personalizadas
-- Mejorar performance para soportar 10,000+ usuarios concurrentes
-- Implementar análisis predictivo de disponibilidad de doctores
-
-**Integraciones:**
-- APIs con sistemas de ERP de clínicas
-- Integración con seguros de salud para verificar cobertura
-- Conectar con farmacias para disponibilidad de medicamentos
-- Implementar telemedicina básica
-
 **Tu visión:**
 
-[Describe qué harías con más tiempo]
+**Expansión de funcionalidades:**
+- **Integración "Rimac Connect":** Conectar con las APIs internas de la aseguradora para mostrar copagos exactos y deducibles personalizados por usuario.
+
+**Mejoras técnicas (Roadmap V3.0):**
+- **IA Inclusiva (SamiBot Voice):** Implementar un asistente de voz basado en LLMs optimizado para adultos mayores y personas con discapacidad visual, justificando el costo de la IA en casos de accesibilidad.
+- **Data Pipeline en Tiempo Real:** Automatizar los scrapers para que corran cada mes y detecten cambios en turnos o stock al instante.
