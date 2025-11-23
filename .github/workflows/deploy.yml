@@ -3,20 +3,18 @@ name: Deploy to Amazon ECR
 on:
   push:
     branches: [ "main" ]
+  workflow_dispatch:      # <--- ESTO AGREGA EL BOTÓN MANUAL
 
 env:
-  AWS_REGION: us-east-1                   # Tu región de AWS
+  AWS_REGION: us-east-1
 
 jobs:
-  # ----------------------------------------------------------
-  # JOB 1: BACKEND
-  # Se ejecuta solo si hay cambios en la carpeta 'src/backend' o archivos raíz
-  # ----------------------------------------------------------
   deploy-backend:
     name: Build & Push Backend
     runs-on: ubuntu-latest
-    # Este filtro asegura que solo se ejecute si tocas el backend o los requirements
+    # Se ejecuta si es manual (workflow_dispatch) O si hubo cambios en backend/requirements
     if: |
+      github.event_name == 'workflow_dispatch' ||
       contains(github.event.head_commit.modified, 'src/backend/') || 
       contains(github.event.head_commit.modified, 'requirements.txt')
 
@@ -41,19 +39,16 @@ jobs:
         ECR_REPOSITORY: ${{ secrets.ECR_REPO_BACKEND }}
         IMAGE_TAG: latest
       run: |
-        # Construimos desde la raíz (.) para poder acceder a requirements.txt si es necesario
-        # Pero apuntamos al Dockerfile específico (-f)
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f src/backend/Dockerfile .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-  # ----------------------------------------------------------
-  # JOB 2: FRONTEND
-  # Se ejecuta solo si hay cambios en la carpeta 'src/frontend'
-  # ----------------------------------------------------------
   deploy-frontend:
     name: Build & Push Frontend
     runs-on: ubuntu-latest
-    if: contains(github.event.head_commit.modified, 'src/frontend/')
+    # Se ejecuta si es manual (workflow_dispatch) O si hubo cambios en frontend
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.head_commit.modified, 'src/frontend/')
 
     steps:
     - name: Checkout code
